@@ -6,14 +6,15 @@ main([NumNodesArg, TopologyArg, AlgorithmArg]) ->
     Topology = parse_topology(TopologyArg),
     Algorithm = parse_algorithm(AlgorithmArg),
     case coordinator:run(NumNodes, Topology, Algorithm) of
-        {ok, _Summary} ->
+        {ok, Duration} ->
             io:format(
-                "Actor infrastructure ready: ~p nodes, ~p topology, ~p algorithm.~n",
-                [NumNodes, topology_name(Topology), algorithm_name(Algorithm)]
+                "Nodes: ~p~nTopology: ~s~nAlgorithm: ~s~nConvergence time: ~p microseconds~n",
+                [NumNodes, topology_name(Topology), algorithm_name(Algorithm), Duration]
             ),
             ok;
         {error, Reason} ->
-            erlang:error(Reason)
+            io:format("Simulation failed: ~p~n", [Reason]),
+            {error, Reason}
     end;
 main(_) ->
     io:format(
