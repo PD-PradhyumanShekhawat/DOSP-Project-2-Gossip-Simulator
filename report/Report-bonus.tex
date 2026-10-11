@@ -1,0 +1,138 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{tikz}
+
+\definecolor{UFBlue}{HTML}{0021A5}
+\definecolor{UFOrange}{HTML}{FA4616}
+\definecolor{DarkGray}{HTML}{333333}
+
+\hypersetup{colorlinks=true,linkcolor=UFBlue,urlcolor=UFBlue,citecolor=UFBlue}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{UFBlue}{COP5615 --- Distributed Operating Systems Principles}}
+\fancyhead[R]{\small\textcolor{DarkGray}{Project 2: Gossip Simulator}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+\begin{document}
+
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+\vspace*{0.35in}
+\IfFileExists{uf_horizontal_logo_cropped.png}
+  {\includegraphics[width=2.65in]{uf_horizontal_logo_cropped.png}}
+  {\textcolor{UFBlue}{\Large UNIVERSITY OF FLORIDA}}
+\vspace{0.65in}
+
+{\Large\bfseries\textcolor{UFBlue}{COP5615 --- DISTRIBUTED OPERATING SYSTEMS PRINCIPLES}\par}
+\vspace{0.45in}
+{\LARGE\bfseries Project 2\par}
+\vspace{0.15in}
+{\Huge\bfseries\textcolor{UFBlue}{Bonus: Failure Model}\par}
+\vspace{0.25in}
+{\color{UFOrange}\rule{4.6in}{1.5pt}}
+\vspace{0.45in}
+
+{\large Permanent Connection Failures\par}
+\vspace{0.5in}
+{\large Pradhyuman Singh Shekhawat\par}
+\vspace{0.15in}
+{\large October 2026\par}
+\vfill
+\end{center}
+\end{titlepage}
+
+\section{Objective}
+The bonus extends the Gossip Simulator with a parameter-controlled
+permanent connection-failure model. The experiment investigates how
+randomly removing connections affects network connectivity and the
+convergence of Gossip and Push-Sum across two topologies.
+
+\section{Implementation}
+Let \(p\in[0,1]\) denote the probability that an undirected connection
+fails permanently. The failure model first obtains the topology's
+undirected edges. Each edge is independently retained with probability
+\(1-p\) or removed with probability \(p\). A removed edge is deleted
+from both endpoint neighbor lists, ensuring that neither endpoint can
+use the failed connection.
+
+Before starting the algorithm, the coordinator checks whether the
+remaining graph is connected. If it is disconnected, the trial is
+recorded as \texttt{disconnected}; otherwise, the selected algorithm
+runs on the surviving graph. This is a permanent topology change for
+the duration of a trial, rather than a random decision to drop each
+individual message.
+
+\section{Experimental Setup}
+The experiments use nine nodes and the \texttt{full} and \texttt{2D}
+topologies. Both Gossip and Push-Sum were evaluated at
+\(p\in\{0,0.1,0.25,0.5,0.75,1.0\}\), with ten trials per configuration:
+\(2\times2\times6\times10=240\) trials in total. Each run used a
+5,000 ms convergence timeout.
+
+The CSV file records the status and convergence time of each trial.
+Successful convergence, disconnection, timeout, and error are treated
+as distinct outcomes. Mean convergence time is calculated only from
+successful trials, so it should not be interpreted as the expected
+completion time across all trials.
+
+\section{Results}
+Table~\ref{tab:results} and Figures~\ref{fig:success}--\ref{fig:disconnected}
+are generated from the recorded CSV results. The plots separate the
+two topologies into panels to make the Gossip and Push-Sum trends
+distinguishable.
+
+\input{report/bonus_generated.tex}
+
+\section{Observations}
+The results show that topology affects tolerance to permanent
+connection failures. In the full topology, Push-Sum converged in all
+ten trials at each tested probability from \(p=0\) through \(p=0.5\).
+At \(p=0.75\), it converged in four of ten trials. In the 2D topology,
+Push-Sum success decreased from ten of ten trials at \(p=0\), to five
+of ten at \(p=0.25\), and two of ten at \(p=0.5\).
+
+Gossip also showed a sharper decline in the 2D topology: it converged
+in three of ten trials at \(p=0.1\) and \(p=0.25\), and none at
+\(p\geq0.5\). For the full topology, Gossip converged in all ten
+trials at \(p=0\) and \(p=0.1\), and seven of ten at \(p=0.5\).
+
+These observations are consistent with the full topology having more
+alternative paths between nodes. Removing edges from a grid can more
+readily disconnect it or leave a graph on which the algorithm fails to
+finish before the timeout. The experiment supports this conclusion for
+the tested graph size, parameter values, and random trials; it does
+not establish a universal ranking for every network size.
+
+\section{Limitations}
+The experiments use ten random trials per configuration, so measured
+rates can vary with the sampled failed edges. A timeout means that
+the algorithm did not report convergence within five seconds; it does
+not prove that convergence is impossible. A disconnected graph is
+reported separately because the coordinator rejects it before the
+algorithm runs. This experiment models permanent connection failures;
+it does not implement node crashes or temporary connection recovery.
+
+\section{Conclusion}
+The bonus implements a parameter-controlled permanent undirected
+connection-failure model, tests its effects on Gossip and Push-Sum,
+and records the outcomes over 240 trials. The observed results show
+that the full topology generally retains successful convergence at
+higher tested failure probabilities than the 2D topology. The
+conclusion is limited to the tested configurations and trial counts.
+
+\end{document}
