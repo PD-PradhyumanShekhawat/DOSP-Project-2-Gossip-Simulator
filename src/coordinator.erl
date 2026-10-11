@@ -1,10 +1,14 @@
 
 -module(coordinator).
 
--export([run/3]).
+-export([run/3, run/4]).
 
 run(NumNodes, Topology, Algorithm) ->
+    run(NumNodes, Topology, Algorithm, 10).
+
+run(NumNodes, Topology, Algorithm, GossipThreshold) ->
     validate_input(NumNodes, Topology, Algorithm),
+    validate_threshold(Algorithm, GossipThreshold),
 
     NeighborMap = topology:build(NumNodes, Topology),
     StatisticsPid = statistics:start(NumNodes, Algorithm),
@@ -14,7 +18,8 @@ run(NumNodes, Topology, Algorithm) ->
             NumNodes,
             NeighborMap,
             StatisticsPid,
-            Algorithm
+            Algorithm,
+            GossipThreshold
         ),
 
     case statistics:await_registration(StatisticsPid, 5000) of
@@ -22,6 +27,7 @@ run(NumNodes, Topology, Algorithm) ->
             configure_actors(Actors, NeighborMap),
 
             StartTime = erlang:monotonic_time(microsecond),
+            statistics:set_start_time(StatisticsPid, StartTime),
             seed_algorithm(Algorithm, ActorPids),
 
             Result = statistics:await_convergence(
@@ -47,17 +53,20 @@ seed_algorithm(gossip, [FirstActor | _]) ->
 seed_algorithm('push-sum', [FirstActor | _]) ->
     FirstActor ! {push_sum, 0.0, 0.0}.
 
-% finish({ok, EndTime}, StartTime) ->
-%     {ok, EndTime - StartTime};
-% finish({error, Reason}, _StartTime) ->
-%     {error, Reason}.
+
 finish_with_report({ok, EndTime}, {ok, Report}, StartTime) ->
     io:format("Statistics report: ~p~n", [Report]),
     {ok, EndTime - StartTime};
 finish_with_report({ok, EndTime}, {error, Reason}, StartTime) ->
     io:format("Could not retrieve statistics report: ~p~n", [Reason]),
     {ok, EndTime - StartTime};
-finish_with_report({error, Reason}, _ReportResult, _StartTime) ->
+finish_with_report({error, Reason}, {ok, Report}, _StartTime) ->
+    io:format("Convergence failed: ~p~n", [Reason]),
+    io:format("Partial statistics report: ~p~n", [Report]),
+    {error, Reason};
+finish_with_report({error, Reason}, {error, ReportReason}, _StartTime) ->
+    io:format("Convergence failed: ~p~n", [Reason]),
+    io:format("Could not retrieve partial statistics: ~p~n", [ReportReason]),
     {error, Reason}.
 
 validate_input(NumNodes, Topology, Algorithm)
@@ -84,13 +93,22 @@ validate_algorithm('push-sum') ->
 validate_algorithm(Algorithm) ->
     erlang:error({invalid_algorithm, Algorithm}).
 
-start_actors(NumNodes, NeighborMap, StatisticsPid, Algorithm) ->
+validate_threshold(gossip, Threshold)
+        when is_integer(Threshold), Threshold > 0 ->
+    ok;
+validate_threshold(gossip, Threshold) ->
+    erlang:error({invalid_gossip_threshold, Threshold});
+validate_threshold('push-sum', _Threshold) ->
+    ok.
+
+start_actors(NumNodes, NeighborMap, StatisticsPid, Algorithm, Threshold) ->
     [
         actor:start(
             Id,
             maps:get(Id, NeighborMap),
             StatisticsPid,
-            Algorithm
+            Algorithm,
+            Threshold
         )
         || Id <- lists:seq(1, NumNodes)
     ].
