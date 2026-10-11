@@ -7,6 +7,7 @@
     await_registration/2,
     await_convergence/2,
     get_report/2,
+    set_start_time/2,
     stop/1
 ]).
 
@@ -35,6 +36,7 @@ await_convergence(Pid, Timeout) ->
     after Timeout ->
         {error, timeout}
     end.
+
 get_report(Pid, Timeout) ->
     Pid ! {get_report, self()},
     receive
@@ -44,91 +46,98 @@ get_report(Pid, Timeout) ->
         {error, timeout}
     end.
 
+set_start_time(Pid, StartTime) ->
+    Pid ! {set_start_time, StartTime}.
+
 stop(Pid) ->
     Pid ! stop.
 
 init(ExpectedActors, Algorithm) ->
-    loop(ExpectedActors, Algorithm, #{}, undefined, undefined, #{}).
+    loop(ExpectedActors, Algorithm, #{}, undefined, undefined, #{}, undefined).
 
-loop(Expected, Algorithm, Actors, RegWaiter, ConvWaiter, Reports) ->
+loop(Expected, Algorithm, Actors, RegWaiter, ConvWaiter, Reports, StartTime) ->
     receive
+        {set_start_time, Time} ->
+            loop(Expected, Algorithm, Actors, RegWaiter,
+                 ConvWaiter, Reports, Time);
+
         {register, ActorPid, Id, Neighbors} ->
             NewActors = maps:put(
                 Id, #{pid => ActorPid, neighbors => Neighbors}, Actors
             ),
             maybe_registration(Expected, Algorithm, NewActors,
-                              RegWaiter, ConvWaiter, Reports);
+                              RegWaiter, ConvWaiter, Reports, StartTime);
 
         {await_registration, From} ->
             case maps:size(Actors) =:= Expected of
                 true ->
                     From ! {registration_complete, self(), Actors},
                     loop(Expected, Algorithm, Actors, undefined,
-                          ConvWaiter, Reports);
+                         ConvWaiter, Reports, StartTime);
                 false ->
                     loop(Expected, Algorithm, Actors, From,
-                          ConvWaiter, Reports)
+                         ConvWaiter, Reports, StartTime)
             end;
 
         {gossip_update, _Pid, Id, Count} ->
             NewReports = maps:put({gossip_count, Id}, Count, Reports),
             maybe_converged(Expected, Algorithm, Actors, RegWaiter,
-                            ConvWaiter, NewReports);
+                            ConvWaiter, NewReports, StartTime);
 
         {push_sum_update, _Pid, Id, Estimate} ->
             NewReports = maps:put({estimate, Id}, Estimate, Reports),
             maybe_converged(Expected, Algorithm, Actors, RegWaiter,
-                            ConvWaiter, NewReports);
+                            ConvWaiter, NewReports, StartTime);
 
         {gossip_done, Pid, Id} ->
             NewReports = maps:put({done, Id}, Pid, Reports),
             maybe_converged(Expected, Algorithm, Actors, RegWaiter,
-                            ConvWaiter, NewReports);
+                            ConvWaiter, NewReports, StartTime);
 
         {push_sum_done, Pid, Id, Estimate} ->
             NewReports = maps:put({done, Id}, Pid, Reports),
             WithEstimate = maps:put({estimate, Id}, Estimate, NewReports),
             maybe_converged(Expected, Algorithm, Actors, RegWaiter,
-                            ConvWaiter, WithEstimate);
+                            ConvWaiter, WithEstimate, StartTime);
 
         {await_convergence, From} ->
             case maps:get(convergence_time, Reports, undefined) of
                 undefined ->
                     loop(Expected, Algorithm, Actors, RegWaiter,
-                          From, Reports);
+                         From, Reports, StartTime);
                 EndTime ->
                     From ! {convergence_complete, self(), EndTime},
                     loop(Expected, Algorithm, Actors, RegWaiter,
-                          undefined, Reports)
+                         undefined, Reports, StartTime)
             end;
 
         {convergence_timeout, _From} ->
             loop(Expected, Algorithm, Actors, RegWaiter,
-                  ConvWaiter, Reports);
+                 ConvWaiter, Reports, StartTime);
 
         {get_report, From} ->
             From ! {statistics_report, self(), Reports},
             loop(Expected, Algorithm, Actors, RegWaiter,
-                 ConvWaiter, Reports);
+                 ConvWaiter, Reports, StartTime);
 
         stop ->
             ok
     end.
 
 maybe_registration(Expected, Algorithm, Actors, RegWaiter,
-                   ConvWaiter, Reports) ->
+                   ConvWaiter, Reports, StartTime) ->
     case maps:size(Actors) =:= Expected andalso RegWaiter =/= undefined of
         true ->
             RegWaiter ! {registration_complete, self(), Actors},
             loop(Expected, Algorithm, Actors, undefined,
-                  ConvWaiter, Reports);
+                 ConvWaiter, Reports, StartTime);
         false ->
             maybe_converged(Expected, Algorithm, Actors, RegWaiter,
-                            ConvWaiter, Reports)
+                            ConvWaiter, Reports, StartTime)
     end.
 
 maybe_converged(Expected, Algorithm, Actors, RegWaiter,
-                ConvWaiter, Reports) ->
+                ConvWaiter, Reports, StartTime) ->
     Converged =
         case Algorithm of
             gossip ->
@@ -139,13 +148,18 @@ maybe_converged(Expected, Algorithm, Actors, RegWaiter,
     case {Converged, maps:get(convergence_time, Reports, undefined)} of
         {true, undefined} ->
             EndTime = erlang:monotonic_time(microsecond),
+            ElapsedTime =
+                case StartTime of
+                    undefined -> EndTime;
+                    _ -> EndTime - StartTime
+                end,
             notify_convergence(ConvWaiter, EndTime),
-            FinalReports = maps:put(convergence_time, EndTime, Reports),
+            FinalReports = maps:put(convergence_time, ElapsedTime, Reports),
             loop(Expected, Algorithm, Actors, RegWaiter,
-                  undefined, FinalReports);
+                 undefined, FinalReports, StartTime);
         _ ->
             loop(Expected, Algorithm, Actors, RegWaiter,
-                  ConvWaiter, Reports)
+                 ConvWaiter, Reports, StartTime)
     end.
 
 received_rumor_count(Reports) ->
