@@ -1,68 +1,129 @@
 \documentclass[11pt]{article}
+
 \usepackage[a4paper,margin=1in]{geometry}
+
 \usepackage{graphicx}
+
 \usepackage{booktabs}
+
 \usepackage{float}
+
 \usepackage{hyperref}
+
 \usepackage{amsmath}
+
 \usepackage{array}
+
 \usepackage{caption}
+
 \usepackage{fancyhdr}
+
 \usepackage{xcolor}
+
 \definecolor{UFBlue}{HTML}{0021A5}
+
 \definecolor{UFOrange}{HTML}{FA4616}
+
 \definecolor{DarkGray}{HTML}{333333}
+
 \hypersetup{colorlinks=true,linkcolor=UFBlue,urlcolor=UFBlue,citecolor=UFBlue}
+
 \setlength{\headheight}{14pt}
+
 \pagestyle{fancy}
+
 \fancyhf{}
+
 \fancyhead[L]{\small\textcolor{UFBlue}{COP5615 --- Distributed Operating Systems Principles}}
+
 \fancyhead[R]{\small\textcolor{DarkGray}{Project 2: Gossip Simulator}}
+
 \fancyfoot[C]{\small\thepage}
+
 \renewcommand{\headrulewidth}{0.5pt}
+
 \setlength{\parindent}{0pt}
+
 \setlength{\parskip}{5pt}
+
 \begin{document}
+
 \hypersetup{pageanchor=false}
+
 % Cover page styled after the supplied UF assignment report.
+
 \begin{titlepage}
+
 \thispagestyle{empty}
+
 \par
+
 \begin{center}
-\vspace*{0.35in}
+
+\vspace{0.35in}
+
 \includegraphics[width=2.65in]{uf_horizontal_logo_cropped.png}
-\vspace{0.65in}\\
-{\Large\bfseries\textcolor{UFBlue}{%
-COP5615 --- DISTRIBUTED OPERATING SYSTEMS PRINCIPLES%
-}\par}
+
+\vspace{0.65in}
+
+{\Large\bfseries\textcolor{UFBlue}{COP5615 --- DISTRIBUTED OPERATING SYSTEMS PRINCIPLES}\par}
+
+
 
 \vspace{0.45in}
 
+
+
 {\LARGE\bfseries Project 2\par}
+
+
 
 \vspace{0.15in}
 
+
+
 {\Huge\bfseries\textcolor{UFBlue}{Gossip Simulator}\par}
+
+
 
 \vspace{0.25in}
 
+
+
 {\color{UFOrange}\rule{4.6in}{1.5pt}}
 
+
+
 \vspace{0.35in}
+
 {\large
+
 \begin{tabular}{r l}
-\textbf{Student:} & Pradhyuman Singh Shekhawat\\
-\textbf{UFID:} & 55742970\\
-\textbf{Email:} & pr.shekhawat@ufl.edu\\
-\textbf{Term:} & Fall 2026\\
-\textbf{Language:} & Erlang\\
+
+\textbf{Student:} & Pradhyuman Singh Shekhawat\\\\
+
+\textbf{UFID:} & 55742970\\\\
+
+\textbf{Email:} & pr.shekhawat\@ufl.edu\\\\
+
+\textbf{Term:} & Fall 2026\\\\
+
+\textbf{Language:} & Erlang\\\\
+
 \textbf{Algorithms:} & Gossip and Push-Sum
+
 \end{tabular}
+
 }
+
 \vfill
+
 {\small University of Florida\\[2pt]October 2026}
+
 \end{center}
+
 \end{titlepage}
+
 % Preliminary pages use Roman numerals.
 \pagenumbering{roman}
 \tableofcontents
@@ -128,22 +189,22 @@ threshold, the actor reports completion and stops forwarding the rumor.
 The baseline experiments use the default threshold of 10 receptions.
 The additional threshold experiment evaluates thresholds of
 10, 20, 50, 100, and 500.
-The threshold is a \emph{*local reception count per actor*}; it is not
+The threshold is a \emph{*\*local reception count per actor\**}; it is not
 a global number of communication rounds. Because actors operate
 asynchronously and select neighbors randomly, a larger threshold
 can allow information to continue propagating for longer before
 individual actors stop forwarding it.
 \par
 \subsection{Push-Sum}
-Each actor begins with its node identifier as its \(s\) value and
-\(w=1\). The actor's current estimate is the ratio \(s/w\). During
-communication, an actor divides its current \(s\) and \(w\) values
-and sends half to a selected neighbor, retaining the other half.
-The implementation uses an epsilon of \(10^{-10}\) and requires
-three consecutive stable rounds, as defined by the implementation,
-before an actor reports that its estimate has converged. The
-coordinator and statistics actor collect the resulting completion
-information.
+
+Each actor begins with its node identifier as its $s$ value and
+$w = 1$. The actor's current estimate is the ratio $s/w$. During
+communication, an actor divides its current $s$ and $w$ values by
+two and sends half to a selected neighbor, retaining the other half.
+The implementation uses an epsilon of $10^{-10}$ and requires three
+consecutive stable rounds, as defined by the implementation, before
+an actor reports that its estimate has converged. The coordinator
+and statistics actor collect the resulting completion information.
 \par
 \subsection{Network topologies}
 \par
@@ -192,17 +253,17 @@ six network sizes with three trials per size.
 \label{tab:baseline}
 \begin{tabular}{llrrr}
 \toprule
-Algorithm & Topology & Successful & Failed & Success rate \\
+Algorithm & Topology & Successful & Failed & Success rate \\\\
 \midrule
-Gossip & Full & 16 & 2 & 88.9\% \\
-Gossip & Line & 7 & 11 & 38.9\% \\
-Gossip & 2D & 7 & 11 & 38.9\% \\
-Gossip & Imperfect 2D & 9 & 9 & 50.0\% \\
+Gossip & Full & 16 & 2 & 88.9\\% \\\\
+Gossip & Line & 7 & 11 & 38.9\\% \\\\
+Gossip & 2D & 7 & 11 & 38.9\\% \\\\
+Gossip & Imperfect 2D & 9 & 9 & 50.0\\% \\\\
 \midrule
-Push-Sum & Full & 18 & 0 & 100.0\% \\
-Push-Sum & Line & 18 & 0 & 100.0\% \\
-Push-Sum & 2D & 18 & 0 & 100.0\% \\
-Push-Sum & Imperfect 2D & 18 & 0 & 100.0\% \\
+Push-Sum & Full & 18 & 0 & 100.0\\% \\\\
+Push-Sum & Line & 18 & 0 & 100.0\\% \\\\
+Push-Sum & 2D & 18 & 0 & 100.0\\% \\\\
+Push-Sum & Imperfect 2D & 18 & 0 & 100.0\\% \\\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -231,18 +292,7 @@ expected time to completion across all attempts.
 \caption{Mean Push-Sum convergence time for successful baseline trials.}
 \label{fig:pushsum-time}
 \end{figure}
-Push-Sum's measured convergence time increased substantially with
-network size in the line topology. At 49 nodes, the mean successful
-line-topology time was approximately 2.99 seconds
-(\(2{,}994{,}108\) microseconds). For comparison, the corresponding
-full-topology mean was approximately 4.90 milliseconds
-(\(4{,}901\) microseconds). This illustrates the impact that network
-structure can have on propagation and convergence time in these runs.
-For Gossip, the baseline threshold of 10 receptions did not produce
-successful convergence in every configuration. In particular, none
-of the three baseline trials succeeded for line networks of 25, 36,
-or 49 nodes. Mean times for configurations with no successful trials
-are omitted rather than interpreted as zero.
+Push-Sum’s measured convergence time increased substantially with network size in the line topology. At 49 nodes, the mean successful line-topology time was approximately 2.99 seconds (2,994,108 microseconds). For comparison, the corresponding full-topology mean was approximately 4.90 milliseconds (4,901 microseconds). This illustrates the impact that network structure can have on propagation and convergence time in these runs. For Gossip, the baseline threshold of 10 receptions did not produce successful convergence in every configuration. In particular, none of the three baseline trials succeeded for line networks of 25, 36, or 49 nodes. Mean times for configurations with no successful trials are omitted rather than interpreted as zero.
 \par
 \subsection{Largest network with an observed successful trial}
 The baseline experiments observed at least one successful Gossip
@@ -251,12 +301,12 @@ trial at the following largest tested network sizes:
 \begin{center}
 \begin{tabular}{lr}
 \toprule
-Topology & Largest observed successful size \\
+Topology & Largest observed successful size \\\\
 \midrule
-Full & 49 nodes \\
-Line & 16 nodes \\
-2D & 25 nodes \\
-Imperfect 2D & 25 nodes \\
+Full & 49 nodes \\\\
+Line & 16 nodes \\\\
+2D & 25 nodes \\\\
+Imperfect 2D & 25 nodes \\\\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -271,7 +321,7 @@ thresholds.
 \subsection{Overall success rate}
 The additional experiment changes the local reception threshold
 while keeping the topology, network sizes, and number of trials
-within the same experimental design. Table~\ref{tab:threshold}
+within the same experimental design. Table ~\ref{tab:threshold}
 shows the aggregate outcomes across all topologies and network sizes.
 \par
 \begin{table}[H]
@@ -280,13 +330,13 @@ shows the aggregate outcomes across all topologies and network sizes.
 \label{tab:threshold}
 \begin{tabular}{rrrr}
 \toprule
-Threshold & Successful & Failed & Success rate \\
+Threshold & Successful & Failed & Success rate \\\\
 \midrule
-10  & 34 & 38 & 47.2\% \\
-20  & 56 & 16 & 77.8\% \\
-50  & 64 & 8  & 88.9\% \\
-100 & 69 & 3  & 95.8\% \\
-500 & 71 & 1  & 98.6\% \\
+10  & 34 & 38 & 47.2\\% \\\\
+20  & 56 & 16 & 77.8\\% \\\\
+50  & 64 & 8  & 88.9\\% \\\\
+100 & 69 & 3  & 95.8\\% \\\\
+500 & 71 & 1  & 98.6\\% \\\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -315,12 +365,12 @@ their outcomes.
 \label{tab:topology-threshold}
 \begin{tabular}{lrrr}
 \toprule
-Topology & Successful & Failed & Success rate \\
+Topology & Successful & Failed & Success rate \\\\
 \midrule
-Full & 86 & 4 & 95.6\% \\
-Line & 53 & 37 & 58.9\% \\
-2D & 77 & 13 & 85.6\% \\
-Imperfect 2D & 78 & 12 & 86.7\% \\
+Full & 86 & 4 & 95.6\\% \\\\
+Line & 53 & 37 & 58.9\\% \\\\
+2D & 77 & 13 & 85.6\\% \\\\
+Imperfect 2D & 78 & 12 & 86.7\\% \\\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -364,35 +414,50 @@ included in the mean. Success rate and convergence time therefore
 provide complementary measures of the experiment.
 \par
 \section{Discussion and Limitations}
-The experiments support several conclusions about the implemented
-simulator:
-\par
+
+The experiments support several conclusions about the implemented simulator:
+
 \begin{enumerate}
-\item \textbf{Topology matters.} Gossip was more reliable on the
-full topology than on the line topology in both the baseline and
-threshold experiments.
-\item \textbf{The local stopping threshold matters.} Increasing
-the Gossip reception threshold was associated with higher
-aggregate success rates in the tested runs.
-\item \textbf{Push-Sum was reliable in the baseline runs.}
-All 72 tested trials succeeded, but this does not guarantee
-success for all larger networks or other execution conditions.
-\item \textbf{Reliability and speed must be considered together.}
-Successful-run mean time excludes failures and should not be
-interpreted independently of the success rate.
+    \item \textbf{Network topology affects Gossip reliability.}
+    Gossip achieved a higher success rate on the full topology than
+    on the line topology in both the baseline and threshold experiments.
+    In a full network, actors can communicate with many other nodes,
+    whereas a line restricts communication to adjacent nodes.
+
+    \item \textbf{The reception threshold influences convergence.}
+    Increasing the local Gossip reception threshold was associated
+    with higher aggregate success rates in the tested experiments.
+    A higher threshold allows actors to continue forwarding the rumor
+    for longer before they stop.
+
+    \item \textbf{Push-Sum succeeded in all baseline trials.}
+    All 72 tested Push-Sum trials converged successfully. This result
+    applies to the tested network sizes, topologies, and execution
+    conditions; it does not guarantee success for larger networks or
+    different configurations.
+
+    \item \textbf{Convergence time must be interpreted alongside
+    success rate.}
+    The reported mean convergence times include only successful runs.
+    A topology may therefore show a low mean time while also having
+    failed trials. Runtime alone is not sufficient to compare the
+    overall reliability of the algorithms.
 \end{enumerate}
-There are important limitations. Only three trials were run for each
-configuration, and randomized execution can produce substantial
-variation. The tested network sizes stop at 49 nodes. The reported
-results are also specific to the implementation's stopping criteria
-and timeout. The threshold experiment varies a local reception count,
-not a synchronized global round count. Finally, the two follow-up
-runs are supplementary observations and are not included in the
-aggregate trial counts.
+
+The experiments have several limitations. Only three trials were run
+for each configuration, so randomized execution may affect the
+observed results. The tested network sizes ranged from 4 to 49 nodes,
+and the conclusions should not automatically be extended to larger
+networks. In addition, trials that did not converge within the
+coordinator's timeout were recorded as failures. A failed trial
+therefore indicates that convergence was not detected within the
+configured execution period, rather than proving that convergence
+is impossible.
+
 Future work could increase the number of trials, test larger networks,
 record explicit failure reasons, and compare additional stopping
-criteria. Repeating the experiments with fixed, recorded random seeds
-would also improve reproducibility.
+criteria. Repeating experiments with fixed random seeds would also
+improve reproducibility.
 \par
 \section{Conclusion}
 The Erlang simulator implements asynchronous Gossip and Push-Sum
