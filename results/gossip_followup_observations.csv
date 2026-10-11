@@ -1,0 +1,3 @@
+algorithm,topology,nodes,threshold,trial,status,convergence_us,observations
+gossip,line,49,100,1,timeout,,Only 15 of 49 actors reported rumor receptions before timeout
+gossip,line,49,500,1,success,3686,All 49 actors received the rumor and convergence was detected
