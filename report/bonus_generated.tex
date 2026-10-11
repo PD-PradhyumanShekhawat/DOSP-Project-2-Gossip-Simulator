@@ -1,0 +1,231 @@
+\begin{table}[H]
+\centering\small
+\begin{tabular}{llrrrrr}
+\toprule
+Algorithm & Topology & $p$ & Success & Disconnected & Timeout & Mean time ($\mu$s) \\
+\midrule
+Gossip & full & 0 & 10/10 & 0/10 & 0/10 & 28.9 \\
+Gossip & full & 0.1 & 10/10 & 0/10 & 0/10 & 28.5 \\
+Gossip & full & 0.25 & 9/10 & 0/10 & 1/10 & 44.4 \\
+Gossip & full & 0.5 & 7/10 & 0/10 & 3/10 & 102.3 \\
+Gossip & full & 0.75 & 1/10 & 5/10 & 4/10 & 128.0 \\
+Gossip & full & 1 & 0/10 & 10/10 & 0/10 & -- \\
+Gossip & 2D & 0 & 6/10 & 0/10 & 4/10 & 95.5 \\
+Gossip & 2D & 0.1 & 3/10 & 1/10 & 6/10 & 95.0 \\
+Gossip & 2D & 0.25 & 3/10 & 5/10 & 2/10 & 95.7 \\
+Gossip & 2D & 0.5 & 0/10 & 10/10 & 0/10 & -- \\
+Gossip & 2D & 0.75 & 0/10 & 10/10 & 0/10 & -- \\
+Gossip & 2D & 1 & 0/10 & 10/10 & 0/10 & -- \\
+Push-Sum & full & 0 & 10/10 & 0/10 & 0/10 & 1825.6 \\
+Push-Sum & full & 0.1 & 10/10 & 0/10 & 0/10 & 1271.9 \\
+Push-Sum & full & 0.25 & 10/10 & 0/10 & 0/10 & 1431.4 \\
+Push-Sum & full & 0.5 & 10/10 & 0/10 & 0/10 & 1642.3 \\
+Push-Sum & full & 0.75 & 4/10 & 6/10 & 0/10 & 3497.8 \\
+Push-Sum & full & 1 & 0/10 & 10/10 & 0/10 & -- \\
+Push-Sum & 2D & 0 & 10/10 & 0/10 & 0/10 & 2737.8 \\
+Push-Sum & 2D & 0.1 & 9/10 & 1/10 & 0/10 & 2899.3 \\
+Push-Sum & 2D & 0.25 & 5/10 & 5/10 & 0/10 & 3684.6 \\
+Push-Sum & 2D & 0.5 & 2/10 & 8/10 & 0/10 & 5182.5 \\
+Push-Sum & 2D & 0.75 & 0/10 & 10/10 & 0/10 & -- \\
+Push-Sum & 2D & 1 & 0/10 & 10/10 & 0/10 & -- \\
+\bottomrule
+\end{tabular}
+\caption{Results for ten trials per configuration. Mean convergence time includes successful trials only.}\label{tab:results}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\textbf{full topology}\\[2pt]
+\begin{tikzpicture}[x=0.95cm,y=0.045cm]
+\draw[->] (0,0) -- (4.35,0) node[right] {$p$};
+\draw[->] (0,0) -- (0,108) node[above,align=center] {Success rate (\%)};
+\draw[gray!25] (0,0) -- (4.08,0);
+\node[left] at (0,0) {\scriptsize 0};
+\draw[gray!25] (0,20) -- (4.08,20);
+\node[left] at (0,20) {\scriptsize 20};
+\draw[gray!25] (0,40) -- (4.08,40);
+\node[left] at (0,40) {\scriptsize 40};
+\draw[gray!25] (0,60) -- (4.08,60);
+\node[left] at (0,60) {\scriptsize 60};
+\draw[gray!25] (0,80) -- (4.08,80);
+\node[left] at (0,80) {\scriptsize 80};
+\draw[gray!25] (0,100) -- (4.08,100);
+\node[left] at (0,100) {\scriptsize 100};
+\draw (0.0,0) -- (0.0,-2);
+\node[below] at (0.0,-2) {\scriptsize 0};
+\draw (0.8,0) -- (0.8,-2);
+\node[below] at (0.8,-2) {\scriptsize 0.1};
+\draw (1.6,0) -- (1.6,-2);
+\node[below] at (1.6,-2) {\scriptsize 0.25};
+\draw (2.4,0) -- (2.4,-2);
+\node[below] at (2.4,-2) {\scriptsize 0.5};
+\draw (3.2,0) -- (3.2,-2);
+\node[below] at (3.2,-2) {\scriptsize 0.75};
+\draw (4.0,0) -- (4.0,-2);
+\node[below] at (4.0,-2) {\scriptsize 1};
+\draw[thick,UFBlue,solid] (0.0,100) -- (0.8,100) -- (1.6,90) -- (2.4,70) -- (3.2,10) -- (4.0,0);
+\filldraw[fill=white,draw=UFBlue,thick] (0.0,100) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (0.8,100) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (1.6,90) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (2.4,70) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (3.2,10) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (4.0,0) circle (2.2pt);
+\draw[thick,UFOrange,dashed] (0.0,100) -- (0.8,100) -- (1.6,100) -- (2.4,100) -- (3.2,40) -- (4.0,0);
+\filldraw[fill=white,draw=UFOrange,thick] (0.0,100) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (0.8,100) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (1.6,100) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (2.4,100) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (3.2,40) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (4.0,0) rectangle ++(0.12,4.5);
+\end{tikzpicture}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\textbf{2D topology}\\[2pt]
+\begin{tikzpicture}[x=0.95cm,y=0.045cm]
+\draw[->] (0,0) -- (4.35,0) node[right] {$p$};
+\draw[->] (0,0) -- (0,108) node[above,align=center] {Success rate (\%)};
+\draw[gray!25] (0,0) -- (4.08,0);
+\node[left] at (0,0) {\scriptsize 0};
+\draw[gray!25] (0,20) -- (4.08,20);
+\node[left] at (0,20) {\scriptsize 20};
+\draw[gray!25] (0,40) -- (4.08,40);
+\node[left] at (0,40) {\scriptsize 40};
+\draw[gray!25] (0,60) -- (4.08,60);
+\node[left] at (0,60) {\scriptsize 60};
+\draw[gray!25] (0,80) -- (4.08,80);
+\node[left] at (0,80) {\scriptsize 80};
+\draw[gray!25] (0,100) -- (4.08,100);
+\node[left] at (0,100) {\scriptsize 100};
+\draw (0.0,0) -- (0.0,-2);
+\node[below] at (0.0,-2) {\scriptsize 0};
+\draw (0.8,0) -- (0.8,-2);
+\node[below] at (0.8,-2) {\scriptsize 0.1};
+\draw (1.6,0) -- (1.6,-2);
+\node[below] at (1.6,-2) {\scriptsize 0.25};
+\draw (2.4,0) -- (2.4,-2);
+\node[below] at (2.4,-2) {\scriptsize 0.5};
+\draw (3.2,0) -- (3.2,-2);
+\node[below] at (3.2,-2) {\scriptsize 0.75};
+\draw (4.0,0) -- (4.0,-2);
+\node[below] at (4.0,-2) {\scriptsize 1};
+\draw[thick,UFBlue,solid] (0.0,60) -- (0.8,30) -- (1.6,30) -- (2.4,0) -- (3.2,0) -- (4.0,0);
+\filldraw[fill=white,draw=UFBlue,thick] (0.0,60) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (0.8,30) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (1.6,30) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (2.4,0) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (3.2,0) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (4.0,0) circle (2.2pt);
+\draw[thick,UFOrange,dashed] (0.0,100) -- (0.8,90) -- (1.6,50) -- (2.4,20) -- (3.2,0) -- (4.0,0);
+\filldraw[fill=white,draw=UFOrange,thick] (0.0,100) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (0.8,90) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (1.6,50) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (2.4,20) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (3.2,0) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (4.0,0) rectangle ++(0.12,4.5);
+\end{tikzpicture}
+\end{minipage}
+\caption{Successful convergence rate as connection-failure probability increases. Each point summarizes ten trials.}\label{fig:success}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\textbf{full topology}\\[2pt]
+\begin{tikzpicture}[x=0.95cm,y=0.045cm]
+\draw[->] (0,0) -- (4.35,0) node[right] {$p$};
+\draw[->] (0,0) -- (0,108) node[above,align=center] {Disconnected (\%)};
+\draw[gray!25] (0,0) -- (4.08,0);
+\node[left] at (0,0) {\scriptsize 0};
+\draw[gray!25] (0,20) -- (4.08,20);
+\node[left] at (0,20) {\scriptsize 20};
+\draw[gray!25] (0,40) -- (4.08,40);
+\node[left] at (0,40) {\scriptsize 40};
+\draw[gray!25] (0,60) -- (4.08,60);
+\node[left] at (0,60) {\scriptsize 60};
+\draw[gray!25] (0,80) -- (4.08,80);
+\node[left] at (0,80) {\scriptsize 80};
+\draw[gray!25] (0,100) -- (4.08,100);
+\node[left] at (0,100) {\scriptsize 100};
+\draw (0.0,0) -- (0.0,-2);
+\node[below] at (0.0,-2) {\scriptsize 0};
+\draw (0.8,0) -- (0.8,-2);
+\node[below] at (0.8,-2) {\scriptsize 0.1};
+\draw (1.6,0) -- (1.6,-2);
+\node[below] at (1.6,-2) {\scriptsize 0.25};
+\draw (2.4,0) -- (2.4,-2);
+\node[below] at (2.4,-2) {\scriptsize 0.5};
+\draw (3.2,0) -- (3.2,-2);
+\node[below] at (3.2,-2) {\scriptsize 0.75};
+\draw (4.0,0) -- (4.0,-2);
+\node[below] at (4.0,-2) {\scriptsize 1};
+\draw[thick,UFBlue,solid] (0.0,0) -- (0.8,0) -- (1.6,0) -- (2.4,0) -- (3.2,50) -- (4.0,100);
+\filldraw[fill=white,draw=UFBlue,thick] (0.0,0) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (0.8,0) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (1.6,0) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (2.4,0) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (3.2,50) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (4.0,100) circle (2.2pt);
+\draw[thick,UFOrange,dashed] (0.0,0) -- (0.8,0) -- (1.6,0) -- (2.4,0) -- (3.2,60) -- (4.0,100);
+\filldraw[fill=white,draw=UFOrange,thick] (0.0,0) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (0.8,0) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (1.6,0) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (2.4,0) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (3.2,60) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (4.0,100) rectangle ++(0.12,4.5);
+\end{tikzpicture}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\textbf{2D topology}\\[2pt]
+\begin{tikzpicture}[x=0.95cm,y=0.045cm]
+\draw[->] (0,0) -- (4.35,0) node[right] {$p$};
+\draw[->] (0,0) -- (0,108) node[above,align=center] {Disconnected (\%)};
+\draw[gray!25] (0,0) -- (4.08,0);
+\node[left] at (0,0) {\scriptsize 0};
+\draw[gray!25] (0,20) -- (4.08,20);
+\node[left] at (0,20) {\scriptsize 20};
+\draw[gray!25] (0,40) -- (4.08,40);
+\node[left] at (0,40) {\scriptsize 40};
+\draw[gray!25] (0,60) -- (4.08,60);
+\node[left] at (0,60) {\scriptsize 60};
+\draw[gray!25] (0,80) -- (4.08,80);
+\node[left] at (0,80) {\scriptsize 80};
+\draw[gray!25] (0,100) -- (4.08,100);
+\node[left] at (0,100) {\scriptsize 100};
+\draw (0.0,0) -- (0.0,-2);
+\node[below] at (0.0,-2) {\scriptsize 0};
+\draw (0.8,0) -- (0.8,-2);
+\node[below] at (0.8,-2) {\scriptsize 0.1};
+\draw (1.6,0) -- (1.6,-2);
+\node[below] at (1.6,-2) {\scriptsize 0.25};
+\draw (2.4,0) -- (2.4,-2);
+\node[below] at (2.4,-2) {\scriptsize 0.5};
+\draw (3.2,0) -- (3.2,-2);
+\node[below] at (3.2,-2) {\scriptsize 0.75};
+\draw (4.0,0) -- (4.0,-2);
+\node[below] at (4.0,-2) {\scriptsize 1};
+\draw[thick,UFBlue,solid] (0.0,0) -- (0.8,10) -- (1.6,50) -- (2.4,100) -- (3.2,100) -- (4.0,100);
+\filldraw[fill=white,draw=UFBlue,thick] (0.0,0) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (0.8,10) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (1.6,50) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (2.4,100) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (3.2,100) circle (2.2pt);
+\filldraw[fill=white,draw=UFBlue,thick] (4.0,100) circle (2.2pt);
+\draw[thick,UFOrange,dashed] (0.0,0) -- (0.8,10) -- (1.6,50) -- (2.4,80) -- (3.2,100) -- (4.0,100);
+\filldraw[fill=white,draw=UFOrange,thick] (0.0,0) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (0.8,10) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (1.6,50) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (2.4,80) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (3.2,100) rectangle ++(0.12,4.5);
+\filldraw[fill=white,draw=UFOrange,thick] (4.0,100) rectangle ++(0.12,4.5);
+\end{tikzpicture}
+\end{minipage}
+\caption{Fraction of trials whose remaining graph was disconnected. Each point summarizes ten trials.}\label{fig:disconnected}
+\end{figure}
+

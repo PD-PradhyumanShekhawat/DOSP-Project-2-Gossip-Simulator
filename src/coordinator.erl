@@ -1,45 +1,56 @@
-
 -module(coordinator).
 
--export([run/3, run/4]).
+-export([run/3, run/4, run/5, run/6]).
 
 run(NumNodes, Topology, Algorithm) ->
     run(NumNodes, Topology, Algorithm, 10).
 
 run(NumNodes, Topology, Algorithm, GossipThreshold) ->
+    run(NumNodes, Topology, Algorithm, GossipThreshold, 0.0).
+
+run(NumNodes, Topology, Algorithm, GossipThreshold, FailureProbability) ->
+    run(NumNodes, Topology, Algorithm, GossipThreshold,
+        FailureProbability, 30000).
+
+run(NumNodes, Topology, Algorithm, GossipThreshold,
+    FailureProbability, TimeoutMs)
+        when is_integer(TimeoutMs), TimeoutMs > 0 ->
     validate_input(NumNodes, Topology, Algorithm),
+    validate_failure_probability(FailureProbability),
     validate_threshold(Algorithm, GossipThreshold),
 
-    NeighborMap = topology:build(NumNodes, Topology),
-    StatisticsPid = statistics:start(NumNodes, Algorithm),
+    OriginalMap = topology:build(NumNodes, Topology),
+    {NeighborMap, FailedEdges} =
+        failure_model:apply(OriginalMap, FailureProbability),
 
-    ActorPids =
-        start_actors(
-            NumNodes,
-            NeighborMap,
-            StatisticsPid,
-            Algorithm,
-            GossipThreshold
-        ),
+    case failure_model:is_connected(NeighborMap) of
+        true ->
+            run_connected(
+                NumNodes, NeighborMap, Algorithm, GossipThreshold,
+                TimeoutMs
+            );
+        false ->
+            {error, {disconnected_network, FailedEdges}}
+    end.
+
+run_connected(NumNodes, NeighborMap, Algorithm, GossipThreshold, TimeoutMs) ->
+    StatisticsPid = statistics:start(NumNodes, Algorithm),
+    ActorPids = start_actors(
+        NumNodes, NeighborMap, StatisticsPid, Algorithm, GossipThreshold
+    ),
 
     case statistics:await_registration(StatisticsPid, 5000) of
         {ok, Actors} ->
             configure_actors(Actors, NeighborMap),
-
             StartTime = erlang:monotonic_time(microsecond),
             statistics:set_start_time(StatisticsPid, StartTime),
             seed_algorithm(Algorithm, ActorPids),
 
-            Result = statistics:await_convergence(
-                StatisticsPid,
-                30000
-            ),
-
+            Result = statistics:await_convergence(StatisticsPid, TimeoutMs),
             ReportResult = statistics:get_report(StatisticsPid, 1000),
 
             stop_actors(ActorPids),
             statistics:stop(StatisticsPid),
-
             finish_with_report(Result, ReportResult, StartTime);
 
         {error, timeout} ->
@@ -52,7 +63,6 @@ seed_algorithm(gossip, [FirstActor | _]) ->
     FirstActor ! rumor;
 seed_algorithm('push-sum', [FirstActor | _]) ->
     FirstActor ! {push_sum, 0.0, 0.0}.
-
 
 finish_with_report({ok, EndTime}, {ok, Report}, StartTime) ->
     io:format("Statistics report: ~p~n", [Report]),
@@ -86,10 +96,8 @@ validate_topology(_NumNodes, Topology)
 validate_topology(_, Topology) ->
     erlang:error({invalid_topology, Topology}).
 
-validate_algorithm(gossip) ->
-    ok;
-validate_algorithm('push-sum') ->
-    ok;
+validate_algorithm(gossip) -> ok;
+validate_algorithm('push-sum') -> ok;
 validate_algorithm(Algorithm) ->
     erlang:error({invalid_algorithm, Algorithm}).
 
@@ -104,11 +112,8 @@ validate_threshold('push-sum', _Threshold) ->
 start_actors(NumNodes, NeighborMap, StatisticsPid, Algorithm, Threshold) ->
     [
         actor:start(
-            Id,
-            maps:get(Id, NeighborMap),
-            StatisticsPid,
-            Algorithm,
-            Threshold
+            Id, maps:get(Id, NeighborMap), StatisticsPid,
+            Algorithm, Threshold, 0.0
         )
         || Id <- lists:seq(1, NumNodes)
     ].
@@ -128,3 +133,9 @@ configure_actors(Actors, NeighborMap) ->
 
 stop_actors(Pids) ->
     lists:foreach(fun actor:stop/1, Pids).
+
+validate_failure_probability(P)
+        when is_number(P), P >= 0, P =< 1 ->
+    ok;
+validate_failure_probability(P) ->
+    erlang:error({invalid_failure_probability, P}).
