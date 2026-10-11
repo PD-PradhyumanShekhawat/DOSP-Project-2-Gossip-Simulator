@@ -1,6 +1,6 @@
 # COP5612 Fall 2026 — Project 2: Gossip Simulator
 
-## Team
+## Author
 
 - Pradhyuman Singh Shekhawat
 
