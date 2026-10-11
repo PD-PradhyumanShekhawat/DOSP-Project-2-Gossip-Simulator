@@ -2,10 +2,13 @@
 -export([main/1]).
 
 main([NumNodesArg, TopologyArg, AlgorithmArg]) ->
+    main([NumNodesArg, TopologyArg, AlgorithmArg, "0.0"]);
+main([NumNodesArg, TopologyArg, AlgorithmArg, FailureArg]) ->
     NumNodes = parse_num_nodes(NumNodesArg),
     Topology = parse_topology(TopologyArg),
     Algorithm = parse_algorithm(AlgorithmArg),
-    case coordinator:run(NumNodes, Topology, Algorithm) of
+    FailureProbability = parse_probability(FailureArg),
+    case coordinator:run(NumNodes, Topology, Algorithm, 10, FailureProbability) of
         {ok, Duration} ->
             io:format(
                 "Nodes: ~p~nTopology: ~s~nAlgorithm: ~s~nConvergence time: ~p microseconds~n",
@@ -18,9 +21,10 @@ main([NumNodesArg, TopologyArg, AlgorithmArg]) ->
     end;
 main(_) ->
     io:format(
-        "Usage: project2 numNodes topology algorithm~n"
+        "Usage: project2 numNodes topology algorithm [failure_probability]~n"
         "topology: full | 2D | line | imp2D~n"
         "algorithm: gossip | push-sum~n"
+        "failure_probability: 0.0 to 1.0 (default 0.0)~n"
     ),
     {error, invalid_arguments}.
 
@@ -53,3 +57,11 @@ topology_name(Topology) -> atom_to_list(Topology).
 
 algorithm_name('push-sum') -> "push-sum";
 algorithm_name(Algorithm) -> atom_to_list(Algorithm).
+
+parse_probability(Value) ->
+    try list_to_float(Value) of
+        P when P >= 0.0, P =< 1.0 -> P;
+        _ -> erlang:error({invalid_failure_probability, Value})
+    catch
+        error:Reason -> erlang:error({invalid_failure_probability, {Value, Reason}})
+    end.
